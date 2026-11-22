@@ -1,0 +1,9 @@
+{
+  "cpu": "x86_64",
+  "cpu_logical_cores": 1,
+  "ram_total_gib": 3.9,
+  "gpu": null,
+  "os": "Linux-6.18.44-fc-v726-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "cudaq": "CUDA-Q Version 0.17.0 (https://github.com/NVIDIA/cuda-quantum 1750574c92c613ff76c52fdbaa9289d864a3d640)"
+}
