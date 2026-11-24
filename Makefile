@@ -1,8 +1,8 @@
 PY ?= python
 
-.PHONY: all install test ghz vqe report quick clean
+.PHONY: all install test ghz vqe quick clean
 
-all: install test ghz vqe report
+all: install test ghz vqe
 
 install:
 	$(PY) -m pip install -r requirements.txt
@@ -15,9 +15,6 @@ ghz:
 
 vqe:
 	$(PY) src/h2_vqe.py
-
-report:
-	$(PY) src/report.py
 
 # Reduced versions of both experiments (< 2 min on CPU) -> results/quick/
 quick:
