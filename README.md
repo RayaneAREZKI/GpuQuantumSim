@@ -1,22 +1,32 @@
-# gpu-quantum-sim
+# GpuQuantumSim
 
-CPU statevector simulation of GHZ circuits was measured up to 22 qubits on this machine (no NVIDIA GPU was available, so the GPU comparison has not been measured yet). VQE with a UCCSD ansatz reproduces the H₂/STO-3G potential energy curve (45 bond lengths) with a maximum error of 8.4e-06 mHa versus exact FCI, inside chemical accuracy (1.6 mHa).
+GPU statevector simulation of GHZ circuits reaches 30 qubits, with a 20841.2× speedup over the CPU at n = 26. VQE with a UCCSD ansatz reproduces the H₂/STO-3G potential energy curve (45 bond lengths) with a maximum error of 9.1e-06 mHa versus exact FCI, inside chemical accuracy (1.6 mHa).
 
 Built with [NVIDIA CUDA-Q](https://github.com/NVIDIA/cuda-quantum) 0.17: (1) a CPU-vs-GPU statevector benchmark on GHZ circuits and (2) VQE quantum chemistry on H₂, validated against exact FCI. Every number below is generated from `results/*.csv|json` by `src/report.py`.
 
-> **GPU results pending.** This run had no NVIDIA GPU, so the `nvidia` target and the speedup plot were skipped. Run `notebooks/colab_quickstart.ipynb` on a free Colab T4, copy its `results/` files here and run `make report` to fill in the GPU numbers.
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RayaneAREZKI/GpuQuantumSim/blob/main/notebooks/colab_quickstart.ipynb)
+
 
 ## Results
 
 ### GHZ statevector benchmark
 
 ![GHZ runtime](results/ghz_benchmark.png)
+![GPU speedup](results/ghz_speedup.png)
 
-| n | CPU median (s) | Est. memory (GiB) |
-|---|---|---|
-| 20 | 4.7999 | 0.016 |
-| 21 | 10.9532 | 0.031 |
-| 22 | 24.4388 | 0.062 |
+| n | CPU median (s) | GPU median (s) | Speedup |
+|---|---|---|---|
+| 20 | 10.0004 | 0.0015 | 6829.8× |
+| 21 | 21.2896 | 0.0021 | 10255.9× |
+| 22 | 46.1451 | 0.0034 | 13376.8× |
+| 23 | 99.6221 | 0.0065 | 15442.6× |
+| 24 | 215.3058 | 0.0130 | 16536.3× |
+| 25 | 465.0454 | 0.0253 | 18399.2× |
+| 26 | 1012.4568 | 0.0486 | 20841.2× |
+| 27 | – | 0.1021 | – |
+| 28 | – | 0.2032 | – |
+| 29 | – | 0.4215 | – |
+| 30 | – | 0.8835 | – |
 
 ### H₂ VQE (UCCSD, STO-3G)
 
@@ -25,9 +35,9 @@ Built with [NVIDIA CUDA-Q](https://github.com/NVIDIA/cuda-quantum) 0.17: (1) a C
 ![VQE convergence](results/vqe_convergence.png)
 
 - Hamiltonian: 15 Pauli terms (incl. identity) on 4 qubits; UCCSD has 3 parameters; optimizer: COBYLA.
-- At R = 0.735 Å: E_VQE = -1.137306 Ha, E_FCI = -1.137306 Ha, error 1.5e-10 mHa (67 energy evaluations); Hartree-Fock: -1.116999 Ha.
+- At R = 0.735 Å: E_VQE = -1.137306 Ha, E_FCI = -1.137306 Ha, error 1.7e-10 mHa (70 energy evaluations); Hartree-Fock: -1.116999 Ha.
 - Equilibrium from a 1D minimisation of the VQE energy: R = 0.735 Å, E = -1.137306 Ha (same search on FCI: R = 0.735 Å, E = -1.137306 Ha). Lowest grid point: R = 0.75 Å.
-- Max |E_VQE − E_FCI| over the sweep: 8.4e-06 mHa.
+- Max |E_VQE − E_FCI| over the sweep: 9.1e-06 mHa.
 
 ## Why this is hard
 
@@ -42,19 +52,20 @@ A dense n-qubit statevector holds 2ⁿ complex amplitudes: 8 bytes each in fp32,
 
 ## Hardware used
 
-- **CPU:** x86_64 (1 logical cores)
-- **RAM:** 3.9 GiB
-- **GPU:** none (CPU-only run)
-- **Software:** CUDA-Q Version 0.17.0 (https://github.com/NVIDIA/cuda-quantum 1750574c92c613ff76c52fdbaa9289d864a3d640), Python 3.12.3, Linux-6.18.44-fc-v726-x86_64-with-glibc2.39
+- **CPU:** x86_64 (2 logical cores)
+- **RAM:** 12.7 GiB
+- **GPU:** Tesla T4 (15 GiB VRAM)
+- **Software:** CUDA-Q Version 0.17.0 (https://github.com/NVIDIA/cuda-quantum 1750574c92c613ff76c52fdbaa9289d864a3d640), Python 3.13.16, Linux-6.6.159+-x86_64-with-glibc2.39
+- **Runtime:** the CPU half of the GHZ benchmark (n = 20-26) took about 2h58 on a free Colab instance.
 
 All VQE runs use the CPU target (`qpp-cpu`). The CPU target simulates in fp64, the GPU target in fp32, so the speedup mixes hardware and precision.
 
 ## Reproduce
 
 ```bash
-git clone <this repo> && cd gpu-quantum-sim
-make all        # install, test, GHZ benchmark, VQE sweep, regenerate README
-make quick      # reduced run (< 2 min, CPU) -> results/quick/
+git clone https://github.com/RayaneAREZKI/GpuQuantumSim.git && cd GpuQuantumSim
+make all        
+make quick      
 ```
 
 Without an NVIDIA GPU the GPU target is skipped automatically. To get the GPU numbers, open `notebooks/colab_quickstart.ipynb` on a free Colab T4, copy the downloaded `results/` files into this repo and run `make report`. Tested on Python 3.12 / Linux x86_64 (use WSL2 on Windows); pins are in `requirements.txt`.
@@ -69,4 +80,4 @@ Without an NVIDIA GPU the GPU target is skipped automatically. To get the GPU nu
 
 ## Résumé bullet
 
-- Benchmarked CUDA-Q statevector simulation of GHZ circuits on CPU up to 22 qubits (GPU speedup: not yet measured, see note below); VQE with a UCCSD ansatz reproduces the H₂ potential energy curve within 8.4e-06 mHa of FCI (chemical accuracy).
+- GPU-accelerated statevector simulation up to 30 qubits with NVIDIA CUDA-Q/cuStateVec (20841.2× speedup over CPU at n = 26); VQE with a UCCSD ansatz reproduces the H₂ potential energy curve within 9.1e-06 mHa of FCI (chemical accuracy).

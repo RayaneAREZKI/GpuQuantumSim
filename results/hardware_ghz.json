@@ -1,9 +1,13 @@
 {
   "cpu": "x86_64",
-  "cpu_logical_cores": 1,
-  "ram_total_gib": 3.9,
-  "gpu": null,
-  "os": "Linux-6.18.44-fc-v726-x86_64-with-glibc2.39",
-  "python": "3.12.3",
+  "cpu_logical_cores": 2,
+  "ram_total_gib": 12.7,
+  "gpu": {
+    "name": "Tesla T4",
+    "vram_total_bytes": 16106127360,
+    "vram_free_bytes": 15634268160
+  },
+  "os": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "python": "3.13.16",
   "cudaq": "CUDA-Q Version 0.17.0 (https://github.com/NVIDIA/cuda-quantum 1750574c92c613ff76c52fdbaa9289d864a3d640)"
 }
